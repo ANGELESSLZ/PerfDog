@@ -1,0 +1,277 @@
+{
+	"info": {
+		"_postman_id": "dd2a403f-19c7-4b9f-ab9b-a0bde155c3a9",
+		"name": "Swagger Petstore - Flujo de Usuario y Compra",
+		"description": "Colección para registrar usuario, login, ver mascotas, comprar y logout",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24977114",
+		"_collection_link": "https://www.postman.com/grey-sunset-337690/workspace/perfdog/collection/24977114-dd2a403f-19c7-4b9f-ab9b-a0bde155c3a9?action=share&source=collection_link&creator=24977114"
+	},
+	"item": [
+		{
+			"name": "Crear usuario (POST /user)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Usuario creado correctamente\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 0,\n  \"username\": \"{{username}}\",\n  \"firstName\": \"Usuario\",\n  \"lastName\": \"Demo\",\n  \"email\": \"usuario@demo.com\",\n  \"password\": \"123456\",\n  \"phone\": \"123456789\",\n  \"userStatus\": 0\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/user",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login de usuario (GET /user/login)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Login exitoso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(pm.response.text()).to.include(\"logged in user session\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/user/login?username={{username}}&password=123456",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "{{username}}"
+						},
+						{
+							"key": "password",
+							"value": "123456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar mascotas disponibles (GET /pet/findByStatus)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Mascotas disponibles listadas\", function () {",
+							"    var data = pm.response.json();",
+							"    pm.expect(Array.isArray(data)).to.be.true;",
+							"    if (data.length > 0) {",
+							"        pm.collectionVariables.set(\"pet_id\", data[0].id);",
+							"    }",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/pet/findByStatus?status=available",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pet",
+						"findByStatus"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "available"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar una mascota (GET /pet/{petId})",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Mascota consultada correctamente\", function () {",
+							"    var data = pm.response.json();",
+							"    pm.expect(data).to.have.property(\"id\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/pet/{{pet_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pet",
+						"{{pet_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear orden (POST /store/order)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Orden creada con éxito\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.petId).to.eql(parseInt(pm.variables.get(\"pet_id\")));",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 0,\n  \"petId\": \"{{pet_id}}\",\n  \"quantity\": 1,\n  \"shipDate\": \"2025-07-11T10:00:00.000Z\",\n  \"status\": \"placed\",\n  \"complete\": true\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/store/order",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"store",
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout de usuario (GET /user/logout)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Logout exitoso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(pm.response.text()).to.include(\"ok\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/user/logout",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://petstore.swagger.io/v2",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "usuarioDemo",
+			"type": "string"
+		},
+		{
+			"key": "pet_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
